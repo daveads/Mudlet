@@ -1,7 +1,7 @@
 name: 🔨 Build Mudlet (windows)
 on:
   push:
-    branches: [master, development, release-*]
+    branches: [master, development, release-*, test/linux_windows]
     tags: [Mudlet-*]
   pull_request:
   workflow_dispatch:
