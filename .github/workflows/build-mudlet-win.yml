@@ -97,9 +97,14 @@ jobs:
       shell: msys2 {0}
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/src/release"
-        # Copy from package directory since that's where the exe is
-        cp -r "${GITHUB_WORKSPACE}/package-MINGW32-release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
-        cp -r "${GITHUB_WORKSPACE}/package-MINGW32-release/"*.dll "${GITHUB_WORKSPACE}/src/release/"
+        # Copy from the correct build directory
+        cp -r "${GITHUB_WORKSPACE}/build-${MSYSTEM}/release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
+        cp -r "${GITHUB_WORKSPACE}/build-${MSYSTEM}/release/"*.dll "${GITHUB_WORKSPACE}/src/release/" || true
+        cp -r "${GITHUB_WORKSPACE}/package-${MSYSTEM}-release/"*.dll "${GITHUB_WORKSPACE}/src/release/"
+        
+        # Copy required Lua files
+        cp -r "${GITHUB_WORKSPACE}/package-${MSYSTEM}-release/mudlet-lua" "${GITHUB_WORKSPACE}/src/"
+        
         # Install additional Lua test dependencies
         luarocks install busted
         luarocks install luafilesystem
@@ -108,7 +113,6 @@ jobs:
         luarocks install luasql-sqlite3
         luarocks install lrexlib-pcre
         
-
 
     - name: (Windows) Run Lua tests
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
