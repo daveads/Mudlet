@@ -96,21 +96,16 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-      
-        echo "Checking build directory structure:"
-        ls -R "${{runner.workspace}}/b/ninja/"
-        # Ensure test directories exist
-        mkdir -p "${GITHUB_WORKSPACE}/src/release"
-        # Copy the built executable and dependencies from the correct location
-        cp -r "${{runner.workspace}}/b/ninja/src/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
-        cp -r "${{runner.workspace}}/b/ninja/src/"*.dll "${GITHUB_WORKSPACE}/src/release/"
-        # Install additional Lua test dependencies 
-        luarocks install busted
-        luarocks install luafilesystem
-        luarocks install luautf8
-        luarocks install lua-zip
-        luarocks install luasql-sqlite3
-        luarocks install lrexlib-pcre
+        echo "Current directory:"
+        pwd
+        echo "Listing directories:"
+        ls -la
+        echo "Checking GITHUB_WORKSPACE:"
+        ls -R "${GITHUB_WORKSPACE}"
+        echo "Checking build-MINGW64:"
+        ls -R "${GITHUB_WORKSPACE}/build-MINGW64" || true
+        echo "Checking build-MINGW32:"
+        ls -R "${GITHUB_WORKSPACE}/build-MINGW32" || true
 
 
     - name: (Windows) Run Lua tests
