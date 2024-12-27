@@ -98,9 +98,9 @@ jobs:
       run: |
         # Ensure test directories exist
         mkdir -p "${GITHUB_WORKSPACE}/src/release"
-        # Copy the built executable and dependencies
-        cp -r "${{runner.workspace}}/b/ninja/src/release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
-        cp -r "${{runner.workspace}}/b/ninja/src/release/"*.dll "${GITHUB_WORKSPACE}/src/release/"
+        # Copy the built executable and dependencies from the correct location
+        cp -r "${{runner.workspace}}/b/ninja/src/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
+        cp -r "${{runner.workspace}}/b/ninja/src/"*.dll "${GITHUB_WORKSPACE}/src/release/"
         # Install additional Lua test dependencies 
         luarocks install busted
         luarocks install luafilesystem
