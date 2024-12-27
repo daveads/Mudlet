@@ -96,12 +96,17 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-        echo "Current directory structure in build-MINGW32:"
-        ls -R "${GITHUB_WORKSPACE}/build-MINGW32"
-        echo "Current directory structure in package-MINGW32-release:"
-        ls -R "${GITHUB_WORKSPACE}/package-MINGW32-release"
-
         mkdir -p "${GITHUB_WORKSPACE}/src/release"
+        # Copy from package directory since that's where the exe is
+        cp -r "${GITHUB_WORKSPACE}/package-MINGW32-release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
+        cp -r "${GITHUB_WORKSPACE}/package-MINGW32-release/"*.dll "${GITHUB_WORKSPACE}/src/release/"
+        # Install additional Lua test dependencies
+        luarocks install busted
+        luarocks install luafilesystem
+        luarocks install luautf8
+        luarocks install lua-zip
+        luarocks install luasql-sqlite3
+        luarocks install lrexlib-pcre
         
 
 
