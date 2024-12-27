@@ -96,6 +96,9 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
+      
+        echo "Checking build directory structure:"
+        ls -R "${{runner.workspace}}/b/ninja/"
         # Ensure test directories exist
         mkdir -p "${GITHUB_WORKSPACE}/src/release"
         # Copy the built executable and dependencies from the correct location
