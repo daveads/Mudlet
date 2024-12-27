@@ -17,7 +17,7 @@ jobs:
   compile-mudlet:
     name: ${{matrix.buildname}}
     runs-on: ${{matrix.os}}
-    if: ${{ github.repository_owner == 'Mudlet' }}
+    #if: ${{ github.repository_owner == 'Mudlet' }}
     strategy:
       fail-fast: false
       matrix:
@@ -120,6 +120,40 @@ jobs:
       with:
         name: ${{env.UPLOAD_FILENAME}}
         path: ${{env.FOLDER_TO_UPLOAD}}
+
+
+
+    - name: (Windows) Prep for Lua tests
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
+      shell: msys2 {0}
+      run: |
+        # Ensure test directories exist
+        mkdir -p "${GITHUB_WORKSPACE}/src/release"
+        # Copy the built executable and dependencies
+        cp -r "${{runner.workspace}}/b/ninja/src/release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
+        cp -r "${{runner.workspace}}/b/ninja/src/release/"*.dll "${GITHUB_WORKSPACE}/src/release/"
+        # Install additional Lua test dependencies 
+        luarocks install busted
+        luarocks install luafilesystem
+        luarocks install luautf8
+        luarocks install lua-zip
+        luarocks install luasql-sqlite3
+        luarocks install lrexlib-pcre
+
+
+    - name: (Windows) Run Lua tests
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
+      shell: msys2 {0}
+      timeout-minutes: 5
+      run: |
+        cd "${GITHUB_WORKSPACE}/src/release"
+        ./mudlet.exe --profile "Mudlet self-test" --mirror
+      env:
+        AUTORUN_BUSTED_TESTS: 'true'
+        TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
+        QUIT_MUDLET_AFTER_TESTS: 'true'
+
+
 
     - name: Submit to make.mudlet.org
       if: env.UPLOAD_FILENAME
