@@ -96,16 +96,13 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-        echo "Current directory:"
-        pwd
-        echo "Listing directories:"
-        ls -la
-        echo "Checking GITHUB_WORKSPACE:"
-        ls -R "${GITHUB_WORKSPACE}"
-        echo "Checking build-MINGW64:"
-        ls -R "${GITHUB_WORKSPACE}/build-MINGW64" || true
-        echo "Checking build-MINGW32:"
-        ls -R "${GITHUB_WORKSPACE}/build-MINGW32" || true
+        echo "Current directory structure in build-MINGW32:"
+        ls -R "${GITHUB_WORKSPACE}/build-MINGW32"
+        echo "Current directory structure in package-MINGW32-release:"
+        ls -R "${GITHUB_WORKSPACE}/package-MINGW32-release"
+
+        mkdir -p "${GITHUB_WORKSPACE}/src/release"
+        
 
 
     - name: (Windows) Run Lua tests
