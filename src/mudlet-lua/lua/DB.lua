@@ -7,7 +7,7 @@
 -----------------------------------------------------------------------------
 -- General-purpose useful tools that were needed during development:
 -----------------------------------------------------------------------------
-if package.loaded["rex_pcre"] then
+if package.loaded["rex_pc"]
   rex = require "rex_pcre"
 end
 
