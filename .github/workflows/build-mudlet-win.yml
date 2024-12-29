@@ -24,14 +24,9 @@ jobs:
         include:
           - os: windows-2019
             buildname: 'windows64'
-            msystem: MINGW64
-            arch: x86_64
-            run_tests: true
           - os: windows-2019
             buildname: 'windows32'
-            msystem: MINGW32
-            arch: i686
-            run_tests: true
+            
 
     steps:
     - name: Checkout Mudlet source code
@@ -99,7 +94,7 @@ jobs:
 
 
     - name: (Windows) Prep for Lua tests
-      if: matrix.run_tests
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
         # Create required directories and copy files
@@ -116,7 +111,7 @@ jobs:
         luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install lrexlib-pcre
 
     - name: (Windows) Run Lua tests
-      if: matrix.run_tests
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'  
       shell: msys2 {0}
       timeout-minutes: 5
       run: |

@@ -152,6 +152,14 @@ describe("Tests StringUtils.lua functions", function()
     end)
   end)
 
+
+  describe("string.cut()", function()
+    it("should cut string properly", function()
+      assert.are.equal("hel", string.cut("hello", 3)) 
+      assert.are.equal("help", string.cut("hello", 3)) 
+    end)
+  end)
+
   describe("Tests the functionality of string.title", function()
     it("should return the string with the first letter capitalized", function()
       local str = "this"
