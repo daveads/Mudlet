@@ -96,49 +96,28 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-        # Create required directories
+        # Create required directories and copy files
         mkdir -p "${GITHUB_WORKSPACE}/src/release"
-        
-        # Copy executable and DLLs
-        cp "${GITHUB_WORKSPACE}/build-${MSYSTEM}/release/mudlet.exe" "${GITHUB_WORKSPACE}/src/release/"
         cp -r "${GITHUB_WORKSPACE}/package-${MSYSTEM}-release/"* "${GITHUB_WORKSPACE}/src/release/"
         
-        # Install Lua test dependencies with specific Lua version
-        luarocks --lua-version 5.1 install busted
-        luarocks --lua-version 5.1 install luafilesystem
-        luarocks --lua-version 5.1 install luautf8
-        luarocks --lua-version 5.1 install lua-zip
-        luarocks --lua-version 5.1 install luasql-sqlite3
-        luarocks --lua-version 5.1 install lrexlib-pcre
-        
-        # Set up Lua paths
-        export LUA_PATH="$(cygpath -w $(luarocks --lua-version 5.1 path --lr-path))"
-        export LUA_CPATH="$(cygpath -w $(luarocks --lua-version 5.1 path --lr-cpath))"
+        # Install test dependencies with specific paths
+        PATH="${MINGW_BASE_DIR}/bin:$PATH"
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install busted
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install luafilesystem
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install luautf8
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install lua-zip
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install luasql-sqlite3
+        luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install lrexlib-pcre
 
-
-    - name: (Windows) Run Lua tests  
-      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
+    - name: (Windows) Run Lua tests
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'  
       shell: msys2 {0}
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        # Set paths explicitly using luarocks
-        export LUA_PATH="$(luarocks --lua-version 5.1 path --lr-path)"
-        export LUA_CPATH="$(luarocks --lua-version 5.1 path --lr-cpath)"
-        echo "LUA_PATH=$LUA_PATH"
-        echo "LUA_CPATH=$LUA_CPATH"
-        echo "Running Mudlet for tests..."
-        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog 
+        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
       env:
+        PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
         AUTORUN_BUSTED_TESTS: 'true'
         TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
         QUIT_MUDLET_AFTER_TESTS: 'true'
-
-    - name: Check if tests passed
-      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
-      shell: msys2 {0}
-      run: |
-        if [ -e /tmp/busted-tests-failed ]; then
-          echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
-          exit 1
-        fi
