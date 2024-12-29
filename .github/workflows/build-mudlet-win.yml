@@ -122,24 +122,23 @@ jobs:
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        pwd
-        ls -la
-        echo "LUA_PATH: ${LUA_PATH}"
-        echo "LUA_CPATH: ${LUA_CPATH}"
-        echo "Current directory contents:"
-        ls -R
-        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog --debug
+        # Set paths explicitly using luarocks
+        export LUA_PATH="$(luarocks --lua-version 5.1 path --lr-path)"
+        export LUA_CPATH="$(luarocks --lua-version 5.1 path --lr-cpath)"
+        echo "LUA_PATH=$LUA_PATH"
+        echo "LUA_CPATH=$LUA_CPATH"
+        echo "Running Mudlet for tests..."
+        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog 
       env:
         AUTORUN_BUSTED_TESTS: 'true'
         TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
         QUIT_MUDLET_AFTER_TESTS: 'true'
-        
 
-    - name: Passed Lua tests
+    - name: Check if tests passed
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
+      shell: msys2 {0}
       run: |
-        if [ -e /tmp/busted-tests-failed ]
-        then
+        if [ -e /tmp/busted-tests-failed ]; then
           echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
           exit 1
         fi
