@@ -92,6 +92,7 @@ describe("Tests Other.lua functions", function()
         local successful = permGroup(name, "alias", parent)
         assert.spy(permAlias).was.called_with(name, parent, "", "")
         assert.is_true(successful)
+        assert.are.equal(1, 2)
       end)
 
       it("should return true if the trigger group was created", function()
