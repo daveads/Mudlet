@@ -176,14 +176,14 @@ describe("Tests StringUtils.lua functions", function()
   describe("Tests the functionality of string.trim", function()
     it("should return str with all spaces stripped from the beginning and end", function()
       local str = "    this is a test      "
-      local expected = "this is"
+      local expected = "this is a test"
       local actual = str:trim()
       assert.equals(expected, actual)
       actual = string.trim(str)
       assert.equals(expected, actual)
     end)
 
-    it("should return whatever you pass in if", function()
+    it("should return whatever you pass in if it's falsey", function()
       local str = false
       assert.equals(str, string.trim(str))
       str = nil
