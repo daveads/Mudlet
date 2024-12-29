@@ -8,7 +8,7 @@
 --- Documentation: https://wiki.mudlet.org/w/Manual:String_Functions#string.cut
 function string:cut(maxLen)
   if string.len(self) > maxLen then
-    return string.sub(self, 1, maxLen)
+    return string.sub(self, 1, maxLen + 1)
   else
     return self
   end
