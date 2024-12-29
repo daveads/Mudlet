@@ -116,7 +116,15 @@ jobs:
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        ./mudlet.exe --profile "Mudlet self-test" --mirror
+        # Debug: Print environment and paths
+        echo "Test Directory: ${TESTS_DIRECTORY}"
+        echo "Current Directory: $(pwd)"
+        echo "Content of /tmp (if exists):"
+        ls -la /tmp || true
+        echo "Content of C:/tmp (if exists):"
+        ls -la "C:/tmp" || true
+        
+        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog --debug
       env:
         PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
         AUTORUN_BUSTED_TESTS: 'true'
