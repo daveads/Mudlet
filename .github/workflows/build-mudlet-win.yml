@@ -116,7 +116,7 @@ jobs:
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
+        ./mudlet.exe --profile "Mudlet self-test" --mirror
       env:
         PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
         AUTORUN_BUSTED_TESTS: 'true'
