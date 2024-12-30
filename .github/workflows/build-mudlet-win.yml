@@ -116,29 +116,25 @@ jobs:
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        # Create a temp directory we have access to
-        mkdir -p "${GITHUB_WORKSPACE}/temp"
+        # Create temp directory with correct path conversion
+        TEMP_DIR=$(cygpath -w "${GITHUB_WORKSPACE}/temp")
+        mkdir -p "$TEMP_DIR"
         
-        # Set TEMP environment variable for the test run
-        TEMP="${GITHUB_WORKSPACE}/temp"
-        export TEMP
-        TMPDIR="${GITHUB_WORKSPACE}/temp"
-        export TMPDIR
-        
-        echo "Using temp directory: ${TEMP}"
+        echo "Using temp directory: $TEMP_DIR"
+        export TEMP="$TEMP_DIR"
+        export TMP="$TEMP_DIR"
+        export TMPDIR="$TEMP_DIR"
         
         ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
-      env:
-        PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
-        AUTORUN_BUSTED_TESTS: 'true'
-        TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
-        QUIT_MUDLET_AFTER_TESTS: 'true'
 
     - name: Check Lua test results
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-        if [ -e "${GITHUB_WORKSPACE}/temp/busted-tests-failed" ]; then
+        TEMP_DIR=$(cygpath -w "${GITHUB_WORKSPACE}/temp")
+        echo "Checking for test results in: $TEMP_DIR"
+        TEST_FILE="$TEMP_DIR\\busted-tests-failed"
+        if [ -e "$(cygpath "$TEST_FILE")" ]; then
           echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
           exit 1
         fi
