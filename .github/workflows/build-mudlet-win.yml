@@ -116,25 +116,29 @@ jobs:
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        ./mudlet.exe --profile "Mudlet self-test" --mirror
+        # Create a temp directory we have access to
+        mkdir -p "${GITHUB_WORKSPACE}/temp"
+        
+        # Set TEMP environment variable for the test run
+        TEMP="${GITHUB_WORKSPACE}/temp"
+        export TEMP
+        TMPDIR="${GITHUB_WORKSPACE}/temp"
+        export TMPDIR
+        
+        echo "Using temp directory: ${TEMP}"
+        
+        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
       env:
         PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
         AUTORUN_BUSTED_TESTS: 'true'
         TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
         QUIT_MUDLET_AFTER_TESTS: 'true'
 
-
     - name: Check Lua test results
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
-      shell: pwsh
+      shell: msys2 {0}
       run: |
-        $tempPath = [System.IO.Path]::GetTempPath()
-        $testFailFile = Join-Path $tempPath "busted-tests-failed"
-        Write-Host "Checking for test results in: $testFailFile"
-        
-        if (Test-Path $testFailFile) {
-          Write-Host "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
+        if [ -e "${GITHUB_WORKSPACE}/temp/busted-tests-failed" ]; then
+          echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
           exit 1
-        } else {
-          Write-Host "No test failure file found - tests passed"
-        }
+        fi
