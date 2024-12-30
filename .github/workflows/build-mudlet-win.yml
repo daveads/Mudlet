@@ -126,10 +126,15 @@ jobs:
 
     - name: Check Lua test results
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
-      shell: msys2 {0}
+      shell: pwsh
       run: |
-        TEMP_DIR="$LOCALAPPDATA/Temp"
-        if [ -e "$TEMP_DIR/busted-tests-failed" ]; then
-          echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
+        $tempPath = [System.IO.Path]::GetTempPath()
+        $testFailFile = Join-Path $tempPath "busted-tests-failed"
+        Write-Host "Checking for test results in: $testFailFile"
+        
+        if (Test-Path $testFailFile) {
+          Write-Host "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
           exit 1
-        fi
+        } else {
+          Write-Host "No test failure file found - tests passed"
+        }
