@@ -111,45 +111,18 @@ jobs:
         luarocks --tree="${MINGW_BASE_DIR}" --lua-version 5.1 install lrexlib-pcre
 
     - name: (Windows) Run Lua tests
-      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'  
+      if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       timeout-minutes: 5
       run: |
         cd "${GITHUB_WORKSPACE}/src/release"
-        TEMP_DIR=$(cygpath -w "${GITHUB_WORKSPACE}/temp")
-        mkdir -p "$TEMP_DIR"
-        
-        echo "Using temp directory: $TEMP_DIR"
-        export TEMP="$TEMP_DIR"
-        export TMP="$TEMP_DIR"
-        export TMPDIR="$TEMP_DIR"
-        
-        # Run with extra debug flags and redirect output
-        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog --debug > test_output.log 2>&1 &
-        
-        # Get the PID of mudlet
-        MUDLET_PID=$!
-        
-        # Wait for up to 4 minutes
-        COUNTER=0
-        while [ $COUNTER -lt 240 ]; do
-          if ! kill -0 $MUDLET_PID 2>/dev/null; then
-            echo "Mudlet process finished"
-            cat test_output.log
-            break
-          fi
-          let COUNTER=COUNTER+1
-          sleep 1
-        done
-        
-        # If we timed out, kill mudlet
-        if [ $COUNTER -eq 240 ]; then
-          echo "Test run timed out, killing Mudlet"
-          kill -9 $MUDLET_PID
-          cat test_output.log
-          exit 1
-        fi
-        
+        ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
+      env:
+        PATH: ${{env.MINGW_BASE_DIR}}/bin:${{env.PATH}}
+        AUTORUN_BUSTED_TESTS: 'true'
+        TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
+        QUIT_MUDLET_AFTER_TESTS: 'true'
+      
     - name: Check Lua test results
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
