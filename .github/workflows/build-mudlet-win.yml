@@ -154,10 +154,14 @@ jobs:
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
-        TEMP_DIR=$(cygpath -w "${GITHUB_WORKSPACE}/temp")
-        echo "Checking for test results in: $TEMP_DIR"
-        TEST_FILE="$TEMP_DIR\\busted-tests-failed"
-        if [ -e "$(cygpath "$TEST_FILE")" ]; then
+        TEMP_DIR_UNIX=$(cygpath -u "$TEMP_DIR")
+        echo "Checking for test results in: $TEMP_DIR_UNIX"
+        
+        # Check if the test results file exists
+        TEST_FILE="$TEMP_DIR_UNIX/busted-tests-failed"
+        if [ -e "$TEST_FILE" ]; then
           echo "Lua tests failed - see the action called 'Run Lua tests' above for detailed output."
           exit 1
+        else
+          echo "Lua tests passed."
         fi
