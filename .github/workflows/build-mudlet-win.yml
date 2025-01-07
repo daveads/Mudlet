@@ -115,6 +115,19 @@ jobs:
       shell: msys2 {0}
       timeout-minutes: 5
       run: |
+        # Set TEMP_DIR to a Windows-style path
+        TEMP_DIR=$(cygpath -w "${GITHUB_WORKSPACE}/temp")
+        mkdir -p "$TEMP_DIR"
+
+        echo "Using temp directory: $TEMP_DIR"
+        export TEMP="$TEMP_DIR"
+        export TMP="$TEMP_DIR"
+        export TMPDIR="$TEMP_DIR"
+
+        # Save TEMP_DIR to GitHub Actions environment for the next step
+        echo "TEMP_DIR=$TEMP_DIR" >> $GITHUB_ENV
+
+        # Run Mudlet with extra debug flags and redirect output
         cd "${GITHUB_WORKSPACE}/src/release"
         ./mudlet.exe --profile "Mudlet self-test" --mirror --no-dialog
       env:
@@ -122,14 +135,19 @@ jobs:
         AUTORUN_BUSTED_TESTS: 'true'
         TESTS_DIRECTORY: ${{github.workspace}}/src/mudlet-lua/tests
         QUIT_MUDLET_AFTER_TESTS: 'true'
-      
+
     - name: Check Lua test results
       if: matrix.buildname == 'windows64' || matrix.buildname == 'windows32'
       shell: msys2 {0}
       run: |
+        # Retrieve TEMP_DIR from the environment
+        TEMP_DIR="${{ env.TEMP_DIR }}"
+        echo "TEMP_DIR from env: $TEMP_DIR"
+
+        # Convert the Windows-style path back to Unix-style
         TEMP_DIR_UNIX=$(cygpath -u "$TEMP_DIR")
         echo "Checking for test results in: $TEMP_DIR_UNIX"
-        
+
         # Check if the test results file exists
         TEST_FILE="$TEMP_DIR_UNIX/busted-tests-failed"
         if [ -e "$TEST_FILE" ]; then
